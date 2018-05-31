@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/use_fragment"
+        android:title="@string/fragment_use"
+        android:icon="@drawable/ic_wifi_white_24dp"/>
+    <item android:id="@+id/provide_fragment"
+        android:title="@string/fragment_provide"
+        android:icon="@drawable/ic_wifi_tethering_white_24dp"/>
+    <item android:id="@+id/profile_fragment"
+        android:title="@string/fragment_profile"
+        android:icon="@drawable/ic_person_white_24dp"/>
+</menu>

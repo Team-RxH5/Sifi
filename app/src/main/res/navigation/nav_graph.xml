@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:startDestination="@+id/use_fragment">
+
+    <fragment
+        android:id="@+id/profile_fragment"
+        android:name="com.anagramsoftware.sifi.ui.profile.ProfileFragment"
+        android:label="fragment_profile"
+        tools:layout="@layout/fragment_profile" />
+    <fragment
+        android:id="@+id/provide_fragment"
+        android:name="com.anagramsoftware.sifi.ui.provide.ProvideFragment"
+        android:label="fragment_provide"
+        tools:layout="@layout/fragment_provide" />
+    <fragment
+        android:id="@+id/use_fragment"
+        android:name="com.anagramsoftware.sifi.ui.use.UseFragment"
+        android:label="fragment_use"
+        tools:layout="@layout/fragment_use" />
+</navigation>
