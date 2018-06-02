@@ -1,9 +1,10 @@
-package com.anagramsoftware.sifi.ui.use
+package com.anagramsoftware.sifi.ui.selectnetwork
 
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import com.anagramsoftware.sifi.R
 import com.anagramsoftware.sifi.`interface`.ItemClickListener
@@ -32,7 +33,8 @@ class ResultAdapter: RecyclerView.Adapter<ResultAdapter.ViewHolder>() {
     fun getItem(position: Int): Hotspot = dataSet[position]
 
     inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
-        private val ssid = itemView.findViewById<TextView>(R.id.ssid_tv)
+        private val name = itemView.findViewById<TextView>(R.id.name_tv)
+        private val level = itemView.findViewById<ImageView>(R.id.level_iv)
 
         init {
             itemView.setOnClickListener{
@@ -43,7 +45,14 @@ class ResultAdapter: RecyclerView.Adapter<ResultAdapter.ViewHolder>() {
         }
 
         fun bind(item: Hotspot) {
-            ssid.text = item.SSID
+            name.text = item.name
+            when (item.level) {
+                0 -> level.setImageResource(R.drawable.ic_signal_wifi_0_bar_black_24dp)
+                1 -> level.setImageResource(R.drawable.ic_signal_wifi_1_bar_black_24dp)
+                2 -> level.setImageResource(R.drawable.ic_signal_wifi_2_bar_black_24dp)
+                3 -> level.setImageResource(R.drawable.ic_signal_wifi_3_bar_black_24dp)
+                4 -> level.setImageResource(R.drawable.ic_signal_wifi_4_bar_black_24dp)
+            }
         }
     }
 

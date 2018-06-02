@@ -6,24 +6,27 @@
     android:layout_height="match_parent"
     tools:context=".ui.use.UseFragment">
 
-    <android.support.design.widget.FloatingActionButton
+    <ImageButton
         android:id="@+id/action_start"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="128dp"
+        android:layout_height="128dp"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginBottom="8dp"
+        android:background="@drawable/bg_round"
         android:clickable="true"
+        android:contentDescription="@string/info_action_provide"
         android:focusable="true"
-        android:src="@drawable/ic_wifi_tethering_white_24dp"
+        android:padding="32dp"
+        android:scaleType="centerCrop"
         app:backgroundTint="@color/colorPrimary"
-        app:fabSize="normal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_wifi_tethering_white_24dp" />
 
 </android.support.constraint.ConstraintLayout>

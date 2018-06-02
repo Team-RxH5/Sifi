@@ -18,5 +18,14 @@
         android:id="@+id/use_fragment"
         android:name="com.anagramsoftware.sifi.ui.use.UseFragment"
         android:label="fragment_use"
-        tools:layout="@layout/fragment_use" />
+        tools:layout="@layout/fragment_use" >
+        <action
+            android:id="@+id/action_use_fragment_to_select_network_fragment"
+            app:destination="@id/select_network_fragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/select_network_fragment"
+        android:name="com.anagramsoftware.sifi.ui.selectnetwork.SelectNetworkFragment"
+        android:label="fragment_select_network"
+        tools:layout="@layout/fragment_select_network" />
 </navigation>

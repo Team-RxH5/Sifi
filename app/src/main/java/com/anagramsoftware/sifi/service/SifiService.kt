@@ -9,6 +9,7 @@ import android.net.TrafficStats
 import android.net.wifi.WifiConfiguration
 import android.net.wifi.WifiManager
 import android.os.IBinder
+import android.preference.PreferenceManager
 import android.util.Log
 import com.anagramsoftware.sifi.data.model.Hotspot
 import com.anagramsoftware.sifi.data.model.Traffic
@@ -49,8 +50,9 @@ class SifiService : Service() {
                 .subscribe {
                     when(it.getIntExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_UNKNOWN)) {
                         WifiManager.WIFI_STATE_ENABLED -> {
-                            decrypt(wifiManager.connectionInfo.ssid)?.let {
-                                connectedTo = it
+                            val info = wifiManager.connectionInfo
+                            decrypt(info.ssid)?.let {
+                                connectedTo = Hotspot(info.ssid, it[0], it[1], WifiManager.calculateSignalLevel(info.rssi, 5))
                                 startTracking()
                             }
                         }
@@ -78,12 +80,29 @@ class SifiService : Service() {
         val rawSSID = "sifi|$password"
         val crypt = AESCrypt.encrypt(KEY, rawSSID)
         Log.d(TAG, crypt.length.toString())
-        hotspotManager.createNewNetwork(crypt, password)
-        hotspotManager.turnHotspotOn()
+        val userWifiConfig = hotspotManager.getCurrentAp()
+        userWifiConfig?.let {
+            PreferenceManager.getDefaultSharedPreferences(this)
+                    .edit()
+                    .putString(KEY_USER_SSID, it.SSID)
+                    .putString(KEY_USER_PASSWORD, it.preSharedKey)
+                    .putBoolean(KEY_USER_AP_ENABLED, isHotspotActive())
+                    .apply()
+        }
+        val newWifiConfig = HotspotManager.buildConfig(crypt, password)
+        hotspotManager.setNewAp(newWifiConfig)
+        hotspotManager.setWifiApEnabled(true, newWifiConfig)
     }
 
     fun stopProviding() {
-        hotspotManager.turnHotspotOff()
+        PreferenceManager.getDefaultSharedPreferences(this).also {
+            val ssid = it.getString(KEY_USER_SSID, "AndroidAP")
+            val pass = it.getString(KEY_USER_PASSWORD, "00000000")
+            val enabled = it.getBoolean(KEY_USER_AP_ENABLED, false)
+            val userWifiConfig = HotspotManager.buildConfig(ssid, pass)
+            hotspotManager.setNewAp(userWifiConfig)
+            hotspotManager.setWifiApEnabled(enabled, userWifiConfig)
+        }
     }
 
     fun isHotspotActive(): Boolean {
@@ -91,7 +110,7 @@ class SifiService : Service() {
     }
 
     // Use
-    fun connect(hotspot: Hotspot) {
+    fun connect(hotspot: Hotspot): Boolean {
         val wifiConfig = WifiConfiguration()
         wifiConfig.SSID = "\"${hotspot.SSID}\""
         wifiConfig.preSharedKey = "\"${hotspot.pass}\""
@@ -103,14 +122,16 @@ class SifiService : Service() {
             this.connectedTo = hotspot
             startTracking()
         }
+        return connected
     }
 
-    fun disconnect() {
+    fun disconnect(): Boolean {
         val disconnected = wifiManager.disconnect()
         if (disconnected) {
             this.connectedTo = null
             stopTracking()
         }
+        return disconnected
     }
 
     fun isConnected() = connectedTo != null
@@ -129,16 +150,21 @@ class SifiService : Service() {
         return Observable.just(wifiManager.scanResults)
                 .map {
                     it.map {
-                        decrypt(it.SSID) ?: Hotspot()
+                        val strings = decrypt(it.SSID)
+                        if (strings != null) {
+                            val level = WifiManager.calculateSignalLevel(it.level, 5)
+                            Hotspot(it.SSID, strings[0], strings[1], level)
+                        } else {
+                            Hotspot()
+                        }
                     }.filter { it.SSID != "" }
                 }
     }
 
-    private fun decrypt(SSID: String): Hotspot? {
+    private fun decrypt(SSID: String): List<String>? {
         return if (SSID.length == 24) {
             try {
-                val decrypt = AESCrypt.decrypt(KEY, SSID).split("|")
-                Hotspot(SSID, decrypt[0], decrypt[1])
+                AESCrypt.decrypt(KEY, SSID).split("|")
             } catch (e: GeneralSecurityException) {
                 Log.d(TAG, "error $e")
                 null
@@ -180,6 +206,8 @@ class SifiService : Service() {
         private const val TAG = "SifiService"
         private const val KEY = "accdiec"
 
+        private const val KEY_USER_SSID = "user_ssid"
+        private const val KEY_USER_PASSWORD = "user_pass"
+        private const val KEY_USER_AP_ENABLED = "user_ap_enabled"
     }
-
 }

@@ -26,34 +26,4 @@ class UseViewModel(application: Application) : AndroidViewModel(application) {
         private const val TAG = "UseViewModel"
     }
 
-    val hotspots = MutableLiveData<List<Hotspot>>()
-
-    private var hotspotDisposable: Disposable? = null
-
-    fun start() {
-    }
-
-    fun stop() {
-        dispose()
-    }
-
-    fun onScanResult(results: Observable<List<Hotspot>>) {
-        dispose()
-        hotspotDisposable = results.subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .firstOrError()
-                .subscribe({
-                    hotspots.value = it
-                }, {})
-    }
-
-    fun dispose() {
-        hotspotDisposable?.let {
-            if (!it.isDisposed)
-                it.dispose()
-            hotspotDisposable = null
-        }
-    }
-
-
 }

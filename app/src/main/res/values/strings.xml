@@ -3,4 +3,13 @@
     <string name="fragment_use">Use</string>
     <string name="fragment_provide">Provide</string>
     <string name="fragment_profile">Profile</string>
+    <string name="info_action_search">Search Sifi networks</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="info_select_network">Select Network</string>
+    <string name="action_scan">Scan</string>
+    <string name="info_action_provide">Provide Sifi network</string>
+    <string name="info_action_rescan">Rescan Sifi networks</string>
+    <string name="action_cancel">Cancel</string>
 </resources>

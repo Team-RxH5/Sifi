@@ -1,12 +1,8 @@
 package com.anagramsoftware.sifi.service
 
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.net.wifi.WifiConfiguration
 import android.net.wifi.WifiManager
-import android.os.Build
-import android.provider.Settings
 import android.util.Log
 
 
@@ -26,69 +22,59 @@ class HotspotManager(private val context: Context) {
             return false
         }
 
-    fun showWritePermissionSettings(force: Boolean) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (force || !Settings.System.canWrite(this.context)) {
-                val intent = Intent(android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS)
-                intent.data = Uri.parse("package:" + this.context.packageName)
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                this.context.startActivity(intent)
-            }
-        }
-    }
-
-    fun turnHotspotOn(): Boolean {
-        val wifiConfiguration: WifiConfiguration? = null
-        try {
-            val method = mWifiManager.javaClass.getMethod("setWifiApEnabled", WifiConfiguration::class.java, Boolean::class.javaPrimitiveType)
-            method.invoke(mWifiManager, wifiConfiguration, true)
-            return true
+    fun getCurrentAp(): WifiConfiguration? {
+        return try {
+            val method = mWifiManager.javaClass.getMethod("getWifiApConfiguration")
+            method.invoke(mWifiManager) as WifiConfiguration
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e(this.javaClass.toString(), "", e)
+            null
         }
 
-        return false
     }
 
-    fun turnHotspotOff(): Boolean {
-        try {
-            val method = mWifiManager.javaClass.getMethod("setWifiApEnabled", WifiConfiguration::class.java, Boolean::class.javaPrimitiveType)
-            method.invoke(mWifiManager, null, false)
-            return true
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
-        return false
-    }
-
-
-    fun createNewNetwork(ssid: String, password: String): Boolean {
+    fun setNewAp(wifiConfig: WifiConfiguration): Boolean {
         mWifiManager.isWifiEnabled = false // turn off Wifi
         if (isHotshotOn) {
-            turnHotspotOff()
+            setWifiApEnabled(false)
         } else {
             Log.e(TAG, "WifiAp is turned off")
-
         }
-        val myConfig = WifiConfiguration()
-        myConfig.SSID = ssid
-        myConfig.preSharedKey = password
-        myConfig.allowedKeyManagement.set(4)
-        myConfig.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN)
         try {
-            val method = mWifiManager.javaClass.getMethod("setWifiApEnabled", WifiConfiguration::class.java, Boolean::class.javaPrimitiveType)
-            return method.invoke(mWifiManager, myConfig, true) as  Boolean
+            val method = mWifiManager.javaClass.getMethod("setWifiApConfiguration", WifiConfiguration::class.java)
+            return method.invoke(mWifiManager, wifiConfig) as Boolean
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e(this.javaClass.toString(), "", e)
         }
-
         return false
+    }
+
+    fun setWifiApEnabled(enabled: Boolean, wifiConfig: WifiConfiguration? = null): Boolean {
+        return try {
+            if (enabled) { // disable WiFi in any case
+                mWifiManager.isWifiEnabled = false
+            }
+
+            val method = mWifiManager.javaClass.getMethod("setWifiApEnabled", WifiConfiguration::class.java, Boolean::class.javaPrimitiveType)
+            method.invoke(mWifiManager, wifiConfig, enabled) as Boolean
+        } catch (e: Exception) {
+            Log.e(this.javaClass.toString(), "", e)
+            false
+        }
 
     }
 
     companion object {
         private const val TAG = "ApManager"
+
+        fun buildConfig(ssid: String, password: String): WifiConfiguration {
+            val wifiConfig = WifiConfiguration()
+            wifiConfig.SSID = ssid
+            wifiConfig.preSharedKey = password
+            wifiConfig.allowedKeyManagement.set(4)
+            wifiConfig.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN)
+            return wifiConfig
+        }
     }
 
 }
