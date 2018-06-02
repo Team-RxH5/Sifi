@@ -7,10 +7,6 @@ Created By
 ----------
 Udesh Kumarasinghe - [UdeshUK][1] on GitHub, [TheUdeshUK][2] on Twitter
 
-License
--------
-Apache 2.0. See the [LICENSE][3] file for details.
-
 Feedback
 --------
 Any support, hugs and bugs to improve is warmly appreciated. Email to [this][4]
