@@ -5,17 +5,23 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.support.v4.app.Fragment
+import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.transition.Fade
 import com.anagramsoftware.sifi.R
 import com.anagramsoftware.sifi.extension.getService
 import kotlinx.android.synthetic.main.fragment_provide.view.*
 import org.koin.android.ext.android.inject
 
 
-class ProvideFragment : Fragment() {
+class ProvideFragment : androidx.fragment.app.Fragment() {
+
+    init {
+        enterTransition = Fade()
+        exitTransition = Fade()
+    }
 
     private val viewModel: ProvideViewModel by inject()
 

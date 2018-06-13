@@ -1,13 +1,13 @@
 package com.anagramsoftware.sifi.ui.selectnetwork
 
-import android.arch.lifecycle.Observer
+import androidx.lifecycle.Observer
 import android.content.IntentFilter
 import android.net.wifi.WifiManager
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.view.ViewCompat
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import androidx.fragment.app.Fragment
+import androidx.core.view.ViewCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -29,7 +29,7 @@ import org.koin.android.ext.android.inject
  * A [Fragment] to view the scanned Sifi networks.
  *
  */
-class SelectNetworkFragment : Fragment() {
+class SelectNetworkFragment : androidx.fragment.app.Fragment() {
 
     private val viewModel: SelectNetworkViewModel by inject()
 
@@ -71,12 +71,12 @@ class SelectNetworkFragment : Fragment() {
                 }
             }
             result_rv.adapter = adapter
-            result_rv.layoutManager = LinearLayoutManager(context)
+            result_rv.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
             result_rv.addItemDecoration(MarginItemDecorator(resources.getDimensionPixelSize(R.dimen.card_margin)))
             result_rv.setHasFixedSize(true)
             ViewCompat.setElevation(toolbar, 0.0f)
             result_rv.addOnScrollListener( object : RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     super.onScrolled(recyclerView, dx, dy)
                     if (result_rv.canScrollVertically(-1)) {
                         ViewCompat.setElevation(appbar, 50.0f)
@@ -93,6 +93,7 @@ class SelectNetworkFragment : Fragment() {
 
             action_cancel.setOnClickListener{
                 stopScan()
+                view.findNavController().navigateUp()
             }
 
             // Hide unused layouts
@@ -151,8 +152,6 @@ class SelectNetworkFragment : Fragment() {
                 it.dispose()
         }
         wifiScanDisposable = null
-        if (currentLayout == Layout.SCANNING)
-            showFailed()
     }
 
     private fun showScanning() {

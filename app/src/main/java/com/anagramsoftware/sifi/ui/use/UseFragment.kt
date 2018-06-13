@@ -1,14 +1,15 @@
 package com.anagramsoftware.sifi.ui.use
 
-import android.arch.lifecycle.Observer
+import androidx.lifecycle.Observer
 import android.os.Bundle
-import android.support.v4.app.Fragment
+import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.navigation.findNavController
+import androidx.transition.Fade
 import com.anagramsoftware.sifi.R
 import com.anagramsoftware.sifi.extension.getService
 import org.koin.android.ext.android.inject
@@ -17,10 +18,15 @@ import org.koin.android.ext.android.inject
  * A [Fragment] to implement use functionality.
  *
  */
-class UseFragment : Fragment() {
+class UseFragment : androidx.fragment.app.Fragment() {
 
     companion object {
         private const val TAG = "UseFragment"
+    }
+
+    init {
+        enterTransition = Fade()
+        exitTransition = Fade()
     }
 
     private val viewModel: UseViewModel by inject()

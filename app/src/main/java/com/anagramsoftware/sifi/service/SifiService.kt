@@ -1,7 +1,7 @@
 package com.anagramsoftware.sifi.service
 
 import android.app.Service
-import android.arch.lifecycle.MutableLiveData
+import androidx.lifecycle.MutableLiveData
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -28,18 +28,22 @@ class SifiService : Service() {
 
     private val binder = SifiBinder(this)
 
+    private lateinit var notifiManager: NotifyManager
     private lateinit var hotspotManager: HotspotManager
     private lateinit var wifiManager: WifiManager
 
     private val wifiStateDisposable = CompositeDisposable()
     private var trafficDisposable: Disposable? = null
 
-    var trafficStart: Traffic? = null
     val traffic = MutableLiveData<Traffic>()
-    var connectedTo: Hotspot? = null
+    var state: Int = STATE_NONE
+
+    private var trafficStart: Traffic? = null
+    private var connectedTo: Hotspot? = null
 
     override fun onCreate() {
         super.onCreate()
+        notifiManager = NotifyManager(this)
         hotspotManager = HotspotManager(this)
         wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
 
@@ -54,11 +58,14 @@ class SifiService : Service() {
                             decrypt(info.ssid)?.let {
                                 connectedTo = Hotspot(info.ssid, it[0], it[1], WifiManager.calculateSignalLevel(info.rssi, 5))
                                 startTracking()
+                                state = STATE_USE
                             }
                         }
                         WifiManager.WIFI_STATE_DISABLED -> {
                             connectedTo = null
                             stopTracking()
+                            if (state == STATE_USE)
+                                state = STATE_NONE
                         }
                     }
                 })
@@ -68,10 +75,25 @@ class SifiService : Service() {
         return binder
     }
 
+    override fun onRebind(intent: Intent?) {
+        super.onRebind(intent)
+        Log.d(TAG, "rebind")
+    }
+
+    override fun onUnbind(intent: Intent?): Boolean {
+        Log.d(TAG, "state $state")
+        Log.d(TAG, "unbind")
+        if (state == STATE_NONE)
+            stopSelf()
+        return true
+    }
+
     override fun onDestroy() {
         super.onDestroy()
+        stopProviding()
         wifiStateDisposable.dispose()
         stopTracking()
+        Log.d(TAG, "onDestroy")
     }
 
     // Provide
@@ -92,6 +114,8 @@ class SifiService : Service() {
         val newWifiConfig = HotspotManager.buildConfig(crypt, password)
         hotspotManager.setNewAp(newWifiConfig)
         hotspotManager.setWifiApEnabled(true, newWifiConfig)
+        notifiManager.showNotification(NotifyManager.TYPE_PROVIDE)
+        state = STATE_PROVIDING
     }
 
     fun stopProviding() {
@@ -102,7 +126,10 @@ class SifiService : Service() {
             val userWifiConfig = HotspotManager.buildConfig(ssid, pass)
             hotspotManager.setNewAp(userWifiConfig)
             hotspotManager.setWifiApEnabled(enabled, userWifiConfig)
+            notifiManager.removeNotification()
         }
+        if (state == STATE_PROVIDING)
+            state = STATE_NONE
     }
 
     fun isHotspotActive(): Boolean {
@@ -205,6 +232,10 @@ class SifiService : Service() {
     companion object {
         private const val TAG = "SifiService"
         private const val KEY = "accdiec"
+
+        const val STATE_NONE = 0
+        const val STATE_PROVIDING = 1
+        const val STATE_USE = 2
 
         private const val KEY_USER_SSID = "user_ssid"
         private const val KEY_USER_PASSWORD = "user_pass"

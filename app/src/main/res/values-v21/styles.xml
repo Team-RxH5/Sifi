@@ -3,11 +3,13 @@
 
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorPrimary</item>
-        <item name="android:colorBackground">@color/white</item>
-        <item name="android:navigationBarColor">@color/colorPrimaryDark</item>
-        <item name="android:statusBarColor">@android:color/darker_gray</item>
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorPrimaryDark">@color/primaryDarkColor</item>
+        <item name="colorAccent">@color/primaryDarkColor</item>
+        <item name="android:colorBackground">@android:color/white</item>
+        <item name="android:fontFamily">@font/fira_sans_medium</item>
+        <item name="android:navigationBarColor">@color/primaryDarkColor</item>
+        <item name="android:statusBarColor">@android:color/darker_gray
+        </item>
     </style>
 </resources>

@@ -1,6 +1,6 @@
 package com.anagramsoftware.sifi.ui.selectnetwork
 
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,7 +10,7 @@ import com.anagramsoftware.sifi.R
 import com.anagramsoftware.sifi.`interface`.ItemClickListener
 import com.anagramsoftware.sifi.data.model.Hotspot
 
-class ResultAdapter: RecyclerView.Adapter<ResultAdapter.ViewHolder>() {
+class ResultAdapter: androidx.recyclerview.widget.RecyclerView.Adapter<ResultAdapter.ViewHolder>() {
 
     private var dataSet = ArrayList<Hotspot>()
     var listener: ItemClickListener? = null
@@ -32,14 +32,14 @@ class ResultAdapter: RecyclerView.Adapter<ResultAdapter.ViewHolder>() {
     override fun getItemCount(): Int = dataSet.size
     fun getItem(position: Int): Hotspot = dataSet[position]
 
-    inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
+    inner class ViewHolder(itemView: View): androidx.recyclerview.widget.RecyclerView.ViewHolder(itemView) {
         private val name = itemView.findViewById<TextView>(R.id.name_tv)
         private val level = itemView.findViewById<ImageView>(R.id.level_iv)
 
         init {
             itemView.setOnClickListener{
                 val position = adapterPosition
-                if (position != RecyclerView.NO_POSITION)
+                if (position != androidx.recyclerview.widget.RecyclerView.NO_POSITION)
                     listener?.onItemClick(position)
             }
         }

@@ -12,4 +12,9 @@
     <string name="info_action_provide">Provide Sifi network</string>
     <string name="info_action_rescan">Rescan Sifi networks</string>
     <string name="action_cancel">Cancel</string>
+    <string name="action_logout">Logout</string>
+    <string name="info_create_user">Just one step</string>
+    <string name="info_first_name">First name</string>
+    <string name="info_last_name">Last name</string>
+    <string name="info_tag">Tag</string>
 </resources>
