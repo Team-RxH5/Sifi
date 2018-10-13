@@ -95,7 +95,7 @@ class SignUpFragment : Fragment(), GoogleApiClient.OnConnectionFailedListener {
         activity?.let {
             val credential = GoogleAuthProvider.getCredential(acct.idToken, null)
             firebaseAuth.signInWithCredential(credential)
-                .addOnCompleteListener(it, { task ->
+                .addOnCompleteListener(it) { task ->
                     Log.d(TAG, "signInWithCredential:onComplete:" + task.isSuccessful)
 
                     // If sign in fails, display a message to the user. If sign in succeeds
@@ -107,9 +107,9 @@ class SignUpFragment : Fragment(), GoogleApiClient.OnConnectionFailedListener {
                                 Toast.LENGTH_SHORT).show()
                     } else {
                         Log.d(TAG, "signInWithCredential Success")
-                        viewModel.checkUser(task.result.user)
+                        viewModel.checkUser(task.result!!.user)
                     }
-                })
+                }
         }
     }
 

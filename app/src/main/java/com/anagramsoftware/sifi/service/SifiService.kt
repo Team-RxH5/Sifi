@@ -22,6 +22,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import java.security.GeneralSecurityException
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 class SifiService : Service() {
@@ -90,7 +91,7 @@ class SifiService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        stopProviding()
+        stopProvidingMock()
         wifiStateDisposable.dispose()
         stopTracking()
         Log.d(TAG, "onDestroy")
@@ -116,6 +117,13 @@ class SifiService : Service() {
         hotspotManager.setWifiApEnabled(true, newWifiConfig)
         notifiManager.showNotification(NotifyManager.TYPE_PROVIDE)
         state = STATE_PROVIDING
+        startTrackingMock()
+    }
+
+    fun startProvidingMock() {
+        notifiManager.showNotification(NotifyManager.TYPE_PROVIDE)
+        state = STATE_PROVIDING
+        startTrackingMock()
     }
 
     fun stopProviding() {
@@ -130,6 +138,13 @@ class SifiService : Service() {
         }
         if (state == STATE_PROVIDING)
             state = STATE_NONE
+        stopTracking()
+    }
+
+    fun stopProvidingMock() {
+        if (state == STATE_PROVIDING)
+            state = STATE_NONE
+        stopTracking()
     }
 
     fun isHotspotActive(): Boolean {
@@ -152,6 +167,13 @@ class SifiService : Service() {
         return connected
     }
 
+    fun connectMock(hotspot: Hotspot): Boolean {
+        wifiManager.reconnect()
+        this.connectedTo = hotspot
+        startTrackingMock()
+        return true
+    }
+
     fun disconnect(): Boolean {
         val disconnected = wifiManager.disconnect()
         if (disconnected) {
@@ -159,6 +181,13 @@ class SifiService : Service() {
             stopTracking()
         }
         return disconnected
+    }
+
+    fun disconnectMock(): Boolean {
+        wifiManager.disconnect()
+        this.connectedTo = null
+        stopTracking()
+        return true
     }
 
     fun isConnected() = connectedTo != null
@@ -178,6 +207,7 @@ class SifiService : Service() {
                 .map {
                     it.map {
                         val strings = decrypt(it.SSID)
+                        Log.d(TAG, "getWifiSCanResult $strings")
                         if (strings != null) {
                             val level = WifiManager.calculateSignalLevel(it.level, 5)
                             Hotspot(it.SSID, strings[0], strings[1], level)
@@ -187,6 +217,16 @@ class SifiService : Service() {
                     }.filter { it.SSID != "" }
                 }
     }
+
+    fun getWifiSCanResultMock(): Observable<List<Hotspot>> {
+        return Observable.just(
+                arrayListOf(
+                        Hotspot("UK","UK", "00000000", 5),
+                        Hotspot("UK","Shashika", "00000000", 4),
+                        Hotspot("UK","Ilthi", "00000000", 3)
+                ))
+    }
+
 
     private fun decrypt(SSID: String): List<String>? {
         return if (SSID.length == 24) {
@@ -216,6 +256,25 @@ class SifiService : Service() {
                         traffic.value = Traffic(it.sent - trafficStart!!.sent, it.received - trafficStart!!.received)
                     } else {
                         trafficStart = it
+                        traffic.value = Traffic(0, 0)
+                    }
+                }
+    }
+
+    private fun startTrackingMock() {
+        stopTracking()
+        trafficDisposable = Observable.interval(1, TimeUnit.SECONDS)
+                .map{
+                    val random = Random()
+                    val sent = random.nextInt(50)
+                    val received = random.nextInt(500)
+                    Traffic(sent.toLong(), received.toLong())
+                }.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    if (traffic.value != null) {
+                        traffic.value = Traffic(it.sent + traffic.value!!.sent, it.received + traffic.value!!.received)
+                    } else {
                         traffic.value = Traffic(0, 0)
                     }
                 }

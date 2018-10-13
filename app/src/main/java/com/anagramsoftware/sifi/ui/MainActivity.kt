@@ -93,7 +93,7 @@ class MainActivity : AppCompatActivity(), ServiceConnection, NavController.OnNav
     }
 
     override fun onNavigationItemSelected(p0: MenuItem): Boolean {
-        if (navController.currentDestination != null && navController.currentDestination.id != p0.itemId) {
+        if (navController.currentDestination != null && navController.currentDestination!!.id != p0.itemId) {
             val builder = NavOptions.Builder()
             builder.setClearTask(true)
             navController.navigate(p0.itemId, null, builder.build())

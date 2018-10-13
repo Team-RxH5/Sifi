@@ -45,8 +45,7 @@ class SelectNetworkFragment : androidx.fragment.app.Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        with(view, {
-            appbar
+        with(view) {
             toolbar.title = context.getString(R.string.info_select_network)
             toolbar.inflateMenu(R.menu.select_network_menu)
             toolbar.setOnMenuItemClickListener {
@@ -62,7 +61,8 @@ class SelectNetworkFragment : androidx.fragment.app.Fragment() {
             adapter = ResultAdapter()
             adapter.listener = object : ItemClickListener {
                 override fun onItemClick(position: Int) {
-                    if (getService()?.connect(adapter.getItem(position)) == true) {
+                    // TODO -REmove mock
+                    if (getService()?.connectMock(adapter.getItem(position)) == true) {
                         view.findNavController().navigateUp()
                     }
                 }
@@ -100,7 +100,7 @@ class SelectNetworkFragment : androidx.fragment.app.Fragment() {
             appbar.visibility = View.INVISIBLE
             result_rv.visibility = View.INVISIBLE
             rescan_ib.visibility = View.INVISIBLE
-        })
+        }
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -138,7 +138,9 @@ class SelectNetworkFragment : androidx.fragment.app.Fragment() {
         wifiScanDisposable = RxBroadcast.fromBroadcast(context, intentFilter)
                 .firstOrError()
                 .subscribe({
-                    getService()?.getWifiSCanResult()?.let {
+                    Log.d(TAG, "OnScanResult")
+                    // TODO - Remove mock
+                    getService()?.getWifiSCanResultMock()?.let {
                         viewModel.getResults(it)
                     }
                 },{})

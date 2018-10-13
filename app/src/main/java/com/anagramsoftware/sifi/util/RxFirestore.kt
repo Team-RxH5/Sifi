@@ -15,7 +15,7 @@ object RxFirestore {
     fun addDocument( ref: CollectionReference,
                      data: Map<String, Any>): Single<DocumentReference> {
         return Single.create { emitter ->
-            ref.add(data).addOnCompleteListener { task -> emitter.onSuccess(task.result) }.addOnFailureListener { e ->
+            ref.add(data).addOnCompleteListener { task -> task.result?.let { emitter.onSuccess(it) }}.addOnFailureListener { e ->
                 if (!emitter.isDisposed)
                     emitter.onError(e)
             }
@@ -32,7 +32,7 @@ object RxFirestore {
     fun addDocument( ref: CollectionReference,
                      pojo: Any): Single<DocumentReference> {
         return Single.create { emitter ->
-            ref.add(pojo).addOnCompleteListener { task -> emitter.onSuccess(task.result) }.addOnFailureListener { e ->
+            ref.add(pojo).addOnCompleteListener { task -> task.result?.let { emitter.onSuccess(it) }}.addOnFailureListener { e ->
                 if (!emitter.isDisposed)
                     emitter.onError(e)
             }
@@ -68,11 +68,13 @@ object RxFirestore {
     fun checkDocument( ref: CollectionReference,
                      id: String): Single<Boolean> {
         return Single.create { emitter ->
-            ref.document(id).get().addOnCompleteListener {
-                if (it.result.exists())
-                    emitter.onSuccess(true)
-                else
-                    emitter.onSuccess(false)
+            ref.document(id).get().addOnCompleteListener { it ->
+                it.result?.let {
+                    if (it.exists())
+                        emitter.onSuccess(true)
+                    else
+                        emitter.onSuccess(false)   
+                }
             }.addOnFailureListener { e ->
                 if (!emitter.isDisposed)
                     emitter.onError(e)

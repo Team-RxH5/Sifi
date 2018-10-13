@@ -17,4 +17,6 @@
     <string name="info_first_name">First name</string>
     <string name="info_last_name">Last name</string>
     <string name="info_tag">Tag</string>
+    <string name="action_stop">Stop</string>
+    <string name="info_connected_devices">Connected Devices</string>
 </resources>
